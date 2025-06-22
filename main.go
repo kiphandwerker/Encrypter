@@ -49,7 +49,10 @@ func Decrypt(){
 
 }
 
-func ErrorCheck(){
-
+func ErrorCheck(err error){
+  if err != nil {
+    fmt.FPrint(os.Stderr, "Error: ", err)
+    os.Exit(1)
+  }
 
 }
