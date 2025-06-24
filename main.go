@@ -36,7 +36,24 @@ func Encrypt(apiKey []byte, password string, outputFile string){
 }
 
 func Decrypt(){
+	data, err := os.ReadFile(filename)
+	check(err)
 
+	salt := data[:16]
+	nonce := data[16:28]
+	ciphertext := data[28:]
+
+	key := pbkdf2.Key([]byte(password), salt, 100_000, 32, sha256.New)
+	block, err := aes.NewCipher(key)
+	check(err)
+
+	aesGCM, err := cipher.NewGCM(block)
+	check(err)
+
+	plaintext, err := aesGCM.Open(nil, nonce, ciphertext, nil)
+	check(err)
+
+	return plaintext
 
 }
 
