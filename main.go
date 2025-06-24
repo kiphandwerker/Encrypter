@@ -57,7 +57,7 @@ func main() {
 		}
 
 		apiKey := Decrypt(*inFile, *password)
-		fmt.Println("🔓 Decrypted API Key:", string(apiKey))
+		fmt.Println("🔓 Decrypted API File: \n", string(apiKey))
 
 	default:
 		fmt.Println("Unknown command:", os.Args[1])
