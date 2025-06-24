@@ -9,7 +9,7 @@ func Encrypt(apiKey []byte, password string, outputFile string){
   _, err := rand.Read(salt)
   ErrorCheck(err)
 
-  key := pbkdf2.Key([]byte(pasword), salt, 100_100, 32, sha256.New)
+  key := pbkdf2.Key([]byte(password), salt, 100_100, 32, sha256.New)
   block, err := aes.NewCipher(key)
   ErrorCheck(err)
 
