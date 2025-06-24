@@ -1,41 +1,55 @@
 package main
 
 func main(){
-		encryptCmd := flag.NewFlagSet("encrypt", flag.ExitOnError)
-		inFile := encryptCmd.String("in", "", "Input file containing the API key")
-		outFile := encryptCmd.String("out", "encrypted.bin", "Output encrypted file")
-		password := encryptCmd.String("password", "", "Password to encrypt with")
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: [encrypt|decrypt] [options]")
+		os.Exit(1)
+	}
+  
+  switch os.Args[1] {
+    case "encrypt":
+      encryptCmd := flag.NewFlagSet("encrypt", flag.ExitOnError)
+      inFile := encryptCmd.String("in", "", "Input file containing the API key")
+      outFile := encryptCmd.String("out", "encrypted.bin", "Output encrypted file")
+      password := encryptCmd.String("password", "", "Password to encrypt with")
 
-		encryptCmd.Parse(os.Args[2:])
+      encryptCmd.Parse(os.Args[2:])
 
-		if *inFile == "" || *password == "" {
-			fmt.Println("encrypt: -in and -password are required")
-			encryptCmd.Usage()
-			os.Exit(1)
-		}
+      if *inFile == "" || *password == "" {
+        fmt.Println("encrypt: -in and -password are required")
+        encryptCmd.Usage()
+        os.Exit(1)
+      }
 
-		apiKey, err := os.ReadFile(*inFile)
-		check(err)
+      apiKey, err := os.ReadFile(*inFile)
+      check(err)
 
-		err = Encrypt(apiKey, *password, *outFile)
-		check(err)
+      err = Encrypt(apiKey, *password, *outFile)
+      check(err)
 
-		fmt.Println("✅ Encrypted and saved to", *outFile)
+      fmt.Println("✅ Encrypted and saved to", *outFile)
 
-    decryptCmd := flag.NewFlagSet("decrypt", flag.ExitOnError)
-		inFile := decryptCmd.String("in", "", "Input encrypted file")
-		password := decryptCmd.String("password", "", "Password to decrypt with")
+    case "encrypt":
+      decryptCmd := flag.NewFlagSet("decrypt", flag.ExitOnError)
+      inFile := decryptCmd.String("in", "", "Input encrypted file")
+      password := decryptCmd.String("password", "", "Password to decrypt with")
 
-		decryptCmd.Parse(os.Args[2:])
+      decryptCmd.Parse(os.Args[2:])
 
-		if *inFile == "" || *password == "" {
-			fmt.Println("decrypt: -in and -password are required")
-			decryptCmd.Usage()
-			os.Exit(1)
-		}
+      if *inFile == "" || *password == "" {
+        fmt.Println("decrypt: -in and -password are required")
+        decryptCmd.Usage()
+        os.Exit(1)
+      }
 
-		apiKey := decryptFile(*inFile, *password)
-		fmt.Println("🔓 Decrypted API Key:", string(apiKey))
+      apiKey := decryptFile(*inFile, *password)
+      fmt.Println("🔓 Decrypted API Key:", string(apiKey))
+
+    default:
+      fmt.Println("Unknown command:", os.Args[1])
+      fmt.Println("Usage: [encrypt|decrypt] [options]")
+      os.Exit(1)
+	}
 
 }
 
