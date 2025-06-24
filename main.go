@@ -21,6 +21,22 @@ func main(){
 		check(err)
 
 		fmt.Println("✅ Encrypted and saved to", *outFile)
+
+    decryptCmd := flag.NewFlagSet("decrypt", flag.ExitOnError)
+		inFile := decryptCmd.String("in", "", "Input encrypted file")
+		password := decryptCmd.String("password", "", "Password to decrypt with")
+
+		decryptCmd.Parse(os.Args[2:])
+
+		if *inFile == "" || *password == "" {
+			fmt.Println("decrypt: -in and -password are required")
+			decryptCmd.Usage()
+			os.Exit(1)
+		}
+
+		apiKey := decryptFile(*inFile, *password)
+		fmt.Println("🔓 Decrypted API Key:", string(apiKey))
+
 }
 
 func Encrypt(apiKey []byte, password string, outputFile string){
