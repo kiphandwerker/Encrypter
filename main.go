@@ -1,7 +1,26 @@
 package main
 
 func main(){
+		encryptCmd := flag.NewFlagSet("encrypt", flag.ExitOnError)
+		inFile := encryptCmd.String("in", "", "Input file containing the API key")
+		outFile := encryptCmd.String("out", "encrypted.bin", "Output encrypted file")
+		password := encryptCmd.String("password", "", "Password to encrypt with")
 
+		encryptCmd.Parse(os.Args[2:])
+
+		if *inFile == "" || *password == "" {
+			fmt.Println("encrypt: -in and -password are required")
+			encryptCmd.Usage()
+			os.Exit(1)
+		}
+
+		apiKey, err := os.ReadFile(*inFile)
+		check(err)
+
+		err = Encrypt(apiKey, *password, *outFile)
+		check(err)
+
+		fmt.Println("✅ Encrypted and saved to", *outFile)
 }
 
 func Encrypt(apiKey []byte, password string, outputFile string){
