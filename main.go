@@ -1,11 +1,26 @@
 package main
 
+import (
+	"bytes"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/hex"
+	"flag"
+	"fmt"
+	"io"
+	"os"
+
+	"golang.org/x/crypto/pbkdf2"
+)
+
 func main(){
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: [encrypt|decrypt] [options]")
 		os.Exit(1)
 	}
-  
+
   switch os.Args[1] {
     case "encrypt":
       encryptCmd := flag.NewFlagSet("encrypt", flag.ExitOnError)
