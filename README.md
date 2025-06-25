@@ -39,4 +39,10 @@ I am managing a few API keys and various other connection strings and storing th
 
 - in: Path to the encrypted file.
 - password: Password used during encryption (required).
+
 ## How It Works
+- PBKDF2 is used with 100,000 iterations and SHA-256 to derive a 256-bit AES key from your password and a randomly generated salt.
+
+- AES-GCM is used for authenticated encryption with a randomly generated nonce.
+
+- The final encrypted file format: [salt (16 bytes)] + [nonce (12 bytes)] + [ciphertext].
