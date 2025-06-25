@@ -4,11 +4,12 @@ A simple CLI tool written in Go for securely encrypting and decrypting a file us
 ## Motivation
 I am managing a few API keys and various other connection strings and storing them in plain text in various places for convenience is obviously not a great idea. I wrote this to store everything in one place but to only be accessible by certain parties.
 
-## ✨ Features
-- Secure encryption with AES-256-GCM
-- Password-based key derivation (PBKDF2)
-- Salt and nonce generation for each encryption
-- Minimal and easy-to-use CLI interface
+## How It Works
+- [PBKDF2](https://en.wikipedia.org/wiki/PBKDF2) is used with 100,000 iterations and [SHA-256](https://en.wikipedia.org/wiki/SHA-2) to derive a 256-bit AES key from your password and a randomly generated [salt](https://en.wikipedia.org/wiki/Salt_%28cryptography%29).
+
+- [AES-GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode) is used for authenticated encryption with a randomly generated nonce.
+
+- The final encrypted file format: [salt (16 bytes)] + [nonce (12 bytes)] + [ciphertext].
 
 ## 📦 Installation
 
@@ -40,10 +41,3 @@ I am managing a few API keys and various other connection strings and storing th
 - in: Path to the encrypted file.
 - password: Password used during encryption (required).
 
-## How It Works
-- [PBKDF2](https://en.wikipedia.org/wiki/PBKDF2) is used with 100,000 iterations and [SHA-256](https://en.wikipedia.org/wiki/SHA-2) to derive a 256-bit AES key from your password and a randomly generated [salt](https://en.wikipedia.org/wiki/Salt_%28cryptography%29).
-
-
-- [AES-GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode) is used for authenticated encryption with a randomly generated nonce.
-
-- The final encrypted file format: [salt (16 bytes)] + [nonce (12 bytes)] + [ciphertext].
