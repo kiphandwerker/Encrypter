@@ -1,6 +1,13 @@
 # 🔐 Go File Encryptor
 A simple command line interface (CLI) tool written in Go for securely encrypting and decrypting a file using AES-GCM encryption with password-based key derivation (PBKDF2 with SHA-256).
 
+# Table of Contents
+- [Motivation](#motivation)
+- [How It Works](#how-it-works)
+- [Installation](#-installation)
+- [Encrypt](#encrypting-a-file)
+- [Decrypt](#decrypting-a-file)
+
 ## Motivation
 I am managing a few API keys and various other connection strings. Storing them in plain text in various places for convenience is obviously not a great idea. I wrote this to store everything in a place of my choosing, and to prevent unwanted parties from accessing the information.
 
@@ -27,7 +34,7 @@ While the original conception of this idea was to encrypt 1 API key, it can be u
 
 ## Encrypting a file
 
-```bash
+```shell
 ./encryptor encrypt -in /path/to/some/file.txt -out encrypted.bin -password "yourPassword123"
 ```
 
@@ -36,7 +43,7 @@ While the original conception of this idea was to encrypt 1 API key, it can be u
 - password: Password used to encrypt the data (required).
 
 ## Decrypting a file
-```bash
+```shell
 ./encryptor decrypt -in /path/to/some/encrypted.bin -password "yourPassword123"
 ```
 
