@@ -29,24 +29,30 @@ While the original conception of this idea was to encrypt 1 API key, it can be u
 
 2. Build the binary:
     ```bash
-    go build -o encryptor main.go
+    go build -o encryptor.exe main.go
     ```
 
 ## Encrypting a file
 
 ```shell
-./encryptor encrypt -in /path/to/some/file.txt -out encrypted.bin -password "yourPassword123"
+encryptor.exe encrypt -in /path/to/some/file.txt -out encrypted.bin
+```
+
+```
+Enter password for encryption: 
 ```
 
 - in: Path to the file containing the API key.
 - out: (Optional) Output file for the encrypted data (default: encrypted.bin).
-- password: Password used to encrypt the data (required).
 
 ## Decrypting a file
 ```shell
-./encryptor decrypt -in /path/to/some/encrypted.bin -password "yourPassword123"
+encryptor.exe decrypt -in /path/to/some/encrypted.bin
 ```
 
-- in: Path to the encrypted file.
-- password: Password used during encryption (required).
+```
+Enter password for decryption: 
+```
+
+- in: Path to the encrypted bin.
 
