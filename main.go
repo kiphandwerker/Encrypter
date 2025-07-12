@@ -10,8 +10,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"syscall"
 
 	"golang.org/x/crypto/pbkdf2"
+	"golang.org/x/term"
 )
 
 func main() {
@@ -29,16 +31,24 @@ func main() {
 
 		encryptCmd.Parse(os.Args[2:])
 
-		if *inFile == "" || *password == "" {
-			fmt.Println("encrypt: -in and -password are required")
+		if *inFile == "" {
+			fmt.Println("encrypt: -in is required")
 			encryptCmd.Usage()
 			os.Exit(1)
+		}
+
+		// Prompt for password if not provided
+		var pass string
+		if *password == "" {
+			pass = getPassword("Enter password for encryption: ")
+		} else {
+			pass = *password
 		}
 
 		apiKey, err := os.ReadFile(*inFile)
 		ErrorCheck(err)
 
-		err = Encrypt(apiKey, *password, *outFile)
+		err = Encrypt(apiKey, pass, *outFile)
 		ErrorCheck(err)
 
 		fmt.Println("✅ Encrypted and saved to", *outFile)
@@ -50,13 +60,21 @@ func main() {
 
 		decryptCmd.Parse(os.Args[2:])
 
-		if *inFile == "" || *password == "" {
-			fmt.Println("decrypt: -in and -password are required")
+		if *inFile == "" {
+			fmt.Println("decrypt: -in is required")
 			decryptCmd.Usage()
 			os.Exit(1)
 		}
 
-		apiKey := Decrypt(*inFile, *password)
+		// Prompt for password if not provided
+		var pass string
+		if *password == "" {
+			pass = getPassword("Enter password for decryption: ")
+		} else {
+			pass = *password
+		}
+
+		apiKey := Decrypt(*inFile, pass)
 		fmt.Println("🔓 Decrypted API File: \n", string(apiKey))
 
 	default:
@@ -64,6 +82,19 @@ func main() {
 		fmt.Println("Usage: [encrypt|decrypt] [options]")
 		os.Exit(1)
 	}
+}
+
+// getPassword prompts the user for a password without echoing it to the terminal
+func getPassword(prompt string) string {
+	fmt.Print(prompt)
+	// Use term.ReadPassword to hide input
+	pass, err := term.ReadPassword(int(syscall.Stdin))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "❌ Error reading password:", err)
+		os.Exit(1)
+	}
+	fmt.Println() // Add newline after password input
+	return string(pass)
 }
 
 func Encrypt(apiKey []byte, password string, outputFile string) error {
