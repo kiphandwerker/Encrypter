@@ -7,6 +7,7 @@ A simple command line interface (CLI) tool written in Go for securely encrypting
 - [Installation](#-installation)
 - [Encrypt](#encrypting-a-file)
 - [Decrypt](#decrypting-a-file)
+- [Helpful tip](#helpful-tip)
 
 ## Motivation
 I am managing a few API keys and various other connection strings. Storing them in plain text in various places for convenience is obviously not a great idea. I wrote this to store everything in a place of my choosing, and to prevent unwanted parties from accessing the information.
@@ -56,3 +57,20 @@ Enter password for decryption:
 
 - in: Path to the encrypted bin.
 
+# Helpful tip
+
+It is annoying to have to save and move the .exe and .bin around and keep up with it. So one thing that can make this less of a hassle to is put it in one place and create an alias to similar to run it.
+
+I use a simple call from my .bashrc to do just that.
+
+```bash
+dkeys() {
+  local exe="/mnt/c/Users/...../encryptor.exe"
+
+  local infile="C:\\Users\\.....\\encrypted.bin"
+
+  "$exe" decrypt -in "$infile"
+}
+```
+```
+```
