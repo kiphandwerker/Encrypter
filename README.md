@@ -59,7 +59,7 @@ Enter password for decryption:
 
 # Helpful tip
 
-It is annoying to have to save and move the .exe and .bin around and keep up with it. So one thing that can make this less of a hassle to is put it in one place and create an alias to similar to run it.
+It is annoying to have to save and move the .exe and .bin around and keep up with it. So one thing that can make this less of a hassle to is put it in one place and create an alias or similar to run it.
 
 I use a simple call from my .bashrc to do just that.
 
@@ -73,3 +73,4 @@ dkeys() {
 }
 ```
 ```
+
