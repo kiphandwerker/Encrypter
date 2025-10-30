@@ -62,6 +62,12 @@ Enter password for decryption:
 It is annoying to have to save and move the .exe and .bin around and keep up with it. So one thing that can make this less of a hassle to is put it in one place and create an alias or similar to run it.
 
 I use a simple call from my .bashrc to do just that.
+<ul>
+  <li>dkeys:       Specifies the name to call in the terminal</li>
+  <li>exe:         Location of the .exe</li>
+  <li>infile:      Location of the encrypted file</li>
+  <li>decrypt -in: Specifies we will be decrypting the target file</li>
+</ul>
 
 ```bash
 dkeys() {
