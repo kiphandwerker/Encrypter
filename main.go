@@ -16,6 +16,8 @@ import (
 	"golang.org/x/term"
 )
 
+const minPasswordLength = 8
+
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: [encrypt|decrypt] [options]")
@@ -40,9 +42,14 @@ func main() {
 		// Prompt for password if not provided
 		var pass string
 		if *password == "" {
-			pass = getPassword("Enter password for encryption: ")
+			pass = getPasswordWithConfirmation("Enter password for encryption: ")
 		} else {
 			pass = *password
+		}
+
+		if len(pass) < minPasswordLength {
+			fmt.Fprintf(os.Stderr, "❌ Error: password must be at least %d characters\n", minPasswordLength)
+			os.Exit(1)
 		}
 
 		apiKey, err := os.ReadFile(*inFile)
@@ -97,6 +104,17 @@ func getPassword(prompt string) string {
 	return string(pass)
 }
 
+// getPasswordWithConfirmation prompts for a password twice and exits if they don't match
+func getPasswordWithConfirmation(prompt string) string {
+	pass := getPassword(prompt)
+	confirm := getPassword("Confirm password: ")
+	if pass != confirm {
+		fmt.Fprintln(os.Stderr, "❌ Error: passwords do not match")
+		os.Exit(1)
+	}
+	return pass
+}
+
 func Encrypt(apiKey []byte, password string, outputFile string) error {
 	salt := make([]byte, 16)
 	_, err := rand.Read(salt)
@@ -142,7 +160,10 @@ func Decrypt(filename string, password string) []byte {
 	ErrorCheck(err)
 
 	plaintext, err := aesGCM.Open(nil, nonce, ciphertext, nil)
-	ErrorCheck(err)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "❌ Incorrect password")
+		os.Exit(1)
+	}
 
 	return plaintext
 }
