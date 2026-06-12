@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
@@ -11,12 +12,21 @@ import (
 	"io"
 	"os"
 	"syscall"
+	"unicode"
 
 	"golang.org/x/crypto/pbkdf2"
 	"golang.org/x/term"
 )
 
 const minPasswordLength = 8
+
+const (
+	colorRed    = "\033[31m"
+	colorGreen  = "\033[32m"
+	colorYellow = "\033[33m"
+	colorCyan   = "\033[36m"
+	colorReset  = "\033[0m"
+)
 
 func main() {
 	if len(os.Args) < 2 {
@@ -51,6 +61,9 @@ func main() {
 			fmt.Fprintf(os.Stderr, "❌ Error: password must be at least %d characters\n", minPasswordLength)
 			os.Exit(1)
 		}
+
+		label, color := passwordStrength(pass)
+		fmt.Println("Password strength:", colorize(label, color))
 
 		apiKey, err := os.ReadFile(*inFile)
 		ErrorCheck(err)
@@ -91,17 +104,103 @@ func main() {
 	}
 }
 
-// getPassword prompts the user for a password without echoing it to the terminal
+// getPassword prompts for a password, echoing '*' per character typed.
+// Backspace/Delete edits the buffer; Ctrl+C aborts the program.
 func getPassword(prompt string) string {
 	fmt.Print(prompt)
-	// Use term.ReadPassword to hide input
-	pass, err := term.ReadPassword(int(syscall.Stdin))
+
+	fd := int(syscall.Stdin)
+	oldState, err := term.MakeRaw(fd)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "❌ Error reading password:", err)
 		os.Exit(1)
 	}
-	fmt.Println() // Add newline after password input
-	return string(pass)
+
+	reader := bufio.NewReader(os.Stdin)
+	var buf []byte
+	for {
+		b, err := reader.ReadByte()
+		if err != nil {
+			term.Restore(fd, oldState)
+			fmt.Println()
+			os.Exit(1)
+		}
+
+		switch b {
+		case '\r', '\n':
+			term.Restore(fd, oldState)
+			fmt.Println()
+			return string(buf)
+		case 3: // Ctrl+C
+			term.Restore(fd, oldState)
+			fmt.Println()
+			fmt.Fprintln(os.Stderr, "❌ Cancelled")
+			os.Exit(1)
+		case 127, 8: // Backspace / Delete
+			if len(buf) > 0 {
+				buf = buf[:len(buf)-1]
+				fmt.Print("\b \b")
+			}
+		default:
+			buf = append(buf, b)
+			fmt.Print("*")
+		}
+	}
+}
+
+// colorize wraps text in an ANSI color code, but only if stdout is a terminal
+// (so redirected/piped output stays plain).
+func colorize(text, color string) string {
+	if !term.IsTerminal(int(os.Stdout.Fd())) {
+		return text
+	}
+	return color + text + colorReset
+}
+
+// passwordStrength scores pw by length tiers and character-class variety.
+// It assumes pw already meets minPasswordLength.
+func passwordStrength(pw string) (label string, color string) {
+	var hasLower, hasUpper, hasDigit, hasSpecial bool
+	for _, c := range pw {
+		switch {
+		case unicode.IsLower(c):
+			hasLower = true
+		case unicode.IsUpper(c):
+			hasUpper = true
+		case unicode.IsDigit(c):
+			hasDigit = true
+		default:
+			hasSpecial = true
+		}
+	}
+
+	score := 1 // meets the minimum length requirement
+	switch {
+	case len(pw) >= 16:
+		score += 2
+	case len(pw) >= 12:
+		score++
+	}
+	if hasLower && hasUpper {
+		score++
+	}
+	if hasDigit {
+		score++
+	}
+	if hasSpecial {
+		score++
+	}
+
+	switch {
+	case score >= 5:
+		return "Strong", colorGreen
+	case score == 4:
+		return "Good", colorCyan
+	case score == 3:
+		return "Fair", colorYellow
+	default:
+		return "Weak", colorRed
+	}
 }
 
 // getPasswordWithConfirmation prompts for a password twice and exits if they don't match
